@@ -158,7 +158,7 @@ function Fluid(canvas) {
 
     }
 
-    var fadeSpeed = 0.01;
+    var fadeSpeed = 0.05;
     var holdAmount = 1 - fadeSpeed;
 
     // Fades out velocities/densities to stop full stability
@@ -305,8 +305,8 @@ function Fluid(canvas) {
         fade( g );
         fade( bl );
 
-        // fade( u );
-        // fade( v );        
+        fade( u );
+        fade( v );        
 
         // Combine old and new fields into the new field
         addFields( r, r_prev, dt);
@@ -558,10 +558,14 @@ function Fluid(canvas) {
 
     this.reset = reset;
 
+    this.fieldRes = 96;
+
     // Resolution bounder and resetter
     this.setResolution = function ( hRes, wRes ) {
 
         var res = wRes * hRes;
+
+        this.fieldRes = hRes;
 
         if (res > 0 && res < 1000000 && (wRes != width || hRes != height)) {
 
@@ -642,20 +646,8 @@ function Fluid(canvas) {
         var width = field.width();
         var height = field.height();
 
-        // console.log( field.getXVelocity(Math.round( pong.ball.x ), Math.round( pong.ball.y ) ) / 7 )
         // Continously buffer data to reduce computation overhead
         prepareBuffer(field);        
-
-        if ( pong.display ){
-        
-            if ( pong.ball.x < width && pong.ball.x > 0 && pong.ball.y > 0 && pong.ball.y < height ){
-        
-                pong.ball.vy += field.getYVelocity(Math.round( pong.ball.x ), Math.round( pong.ball.y ) ) / 5;
-                pong.ball.vx += field.getXVelocity(Math.round( pong.ball.x ), Math.round( pong.ball.y ) ) / 5;          
-                
-            }
-            
-        }
 
         if (bufferData) {
             
@@ -761,14 +753,16 @@ function Fluid(canvas) {
         context.restore();
         
     }
+
+    this.displaySize = 96;
     
     this.toggleDisplayFunction = function( canvas, showVectors ) {
 
         if (showVectors) {
             
             showVectors = false;
-            canvas.width = displaySize;
-            canvas.height = displaySize;
+            canvas.width = this.displaySize;
+            canvas.height = this.displaySize;
             
             return displayVelocity;
             
@@ -776,8 +770,8 @@ function Fluid(canvas) {
         
         showVectors = true;
         
-        canvas.width = fieldRes;
-        canvas.height = fieldRes;
+        canvas.width = this.fieldRes;
+        canvas.height = this.fieldRes;
         
         return displayDensity;
         
